@@ -1,6 +1,10 @@
 {
   "rewrites": [
     {
+      "source": "/api/DocumentoSolicitadoes/:path*",
+      "destination": "https://gestiondocumental-1.onrender.com/api/DocumentoSolicitadoes/:path*"
+    },
+    {
       "source": "/api/:path*",
       "destination": "https://diagnosticoseguro2-3.onrender.com/api/:path*"
     },

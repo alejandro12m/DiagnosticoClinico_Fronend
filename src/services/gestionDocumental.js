@@ -1,8 +1,5 @@
-const BASE = 'https://gestiondocumental-1.onrender.com'
-
-async function requestAbsolute(path, options = {}) {
-  const url = `${BASE}${path}`
-  const res = await fetch(url, options)
+async function requestRelative(path, options = {}) {
+  const res = await fetch(path, options)
   const text = await res.text()
   let parsed
   try {
@@ -54,7 +51,7 @@ export async function subirArchivoDocumentoSolicitado(payload) {
     fd.append(k, String(v))
   })
 
-  return requestAbsolute('/api/DocumentoSolicitadoes/SubirArchivo', {
+  return requestRelative('/api/DocumentoSolicitadoes/SubirArchivo', {
     method: 'POST',
     body: fd,
   })
