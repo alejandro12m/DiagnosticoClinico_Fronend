@@ -32,12 +32,15 @@ export function OrdenLaboratorioPage() {
   const [delCode, setDelCode] = useState('')
   const delAct = useAsyncAction((c) => api.deleteOrdenLaboratorio(c))
 
+  const [listoCode, setListoCode] = useState('')
+  const listoAct = useAsyncAction((c) => api.marcarOrdenLaboratorioComoListo(c))
+
   const rows = () => list.data?.ordenLaboratorio ?? []
 
   return (
     <CrudTabs
       title="Orden de laboratorio"
-      subtitle="POST en /api/OrdenLaboratorio/HacerOrdenLaboratorio. PUT usa query string. DELETE marca Inactivo."
+      subtitle="POST en /api/OrdenLaboratorio/HacerOrdenLaboratorio. PUT usa query string. PUT /MarcarComolisto/{code} cambia a Listo. DELETE marca Inactivo."
       tabs={{
         list: (
           <div>
@@ -47,7 +50,60 @@ export function OrdenLaboratorioPage() {
                 Recargar
               </button>
             </p>
-            <JsonViewer value={rows()} />
+            <div className="table-wrap">
+              <table className="data-table">
+                <thead>
+                  <tr>
+                    <th>Código</th>
+                    <th>Paciente</th>
+                    <th>Médico</th>
+                    <th>Fecha</th>
+                    <th>Atención</th>
+                    <th>Estado</th>
+                    <th>Acción</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {rows().map((r) => {
+                    const code = r?.ordenLaboratorioCodigo ?? ''
+                    const estado = r?.estadoOrden ?? r?.estadoOrdenLaboratorio ?? ''
+                    const isListo = String(estado).toLowerCase() === 'listo'
+                    return (
+                      <tr key={code || JSON.stringify(r)}>
+                        <td className="code">{code}</td>
+                        <td className="code">{r?.pacienteCodigo ?? ''}</td>
+                        <td className="code">{r?.medicoCodigo ?? ''}</td>
+                        <td className="code">{r?.fechaOrden ?? ''}</td>
+                        <td>{r?.tipoAtencion ?? ''}</td>
+                        <td>
+                          <span className="code">{estado}</span>
+                        </td>
+                        <td>
+                          <button
+                            type="button"
+                            className="btn"
+                            disabled={!code || isListo || listoAct.loading}
+                            onClick={async () => {
+                              await listoAct.run(code)
+                              list.reload()
+                            }}
+                          >
+                            Marcar listo
+                          </button>
+                        </td>
+                      </tr>
+                    )
+                  })}
+                  {rows().length === 0 ? (
+                    <tr>
+                      <td className="muted" colSpan={7}>
+                        Sin registros.
+                      </td>
+                    </tr>
+                  ) : null}
+                </tbody>
+              </table>
+            </div>
             <details className="raw">
               <summary>Respuesta completa</summary>
               <JsonViewer value={list.data} />
@@ -249,6 +305,37 @@ export function OrdenLaboratorioPage() {
               </div>
             </form>
             {delAct.data ? <JsonViewer value={delAct.data} /> : null}
+          </div>
+        ),
+        listo: (
+          <div>
+            <MessageBar
+              loading={listoAct.loading}
+              error={listoAct.error}
+              success={listoAct.success}
+            />
+            <form
+              className="form-grid"
+              onSubmit={(e) => {
+                e.preventDefault()
+                Promise.resolve(listoAct.run(listoCode.trim())).then(() => list.reload())
+              }}
+            >
+              <label>
+                Código orden
+                <input
+                  value={listoCode}
+                  onChange={(e) => setListoCode(e.target.value)}
+                  required
+                />
+              </label>
+              <div className="span-2">
+                <button type="submit" className="btn" disabled={listoAct.loading}>
+                  Marcar como listo (PUT)
+                </button>
+              </div>
+            </form>
+            {listoAct.data ? <JsonViewer value={listoAct.data} /> : null}
           </div>
         ),
       }}

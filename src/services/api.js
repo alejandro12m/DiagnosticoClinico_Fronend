@@ -62,6 +62,10 @@ export async function apiPut(path, body) {
   return apiRequest(path, { method: 'PUT', body })
 }
 
+export async function apiPutNoBody(path) {
+  return apiRequest(path, { method: 'PUT' })
+}
+
 export async function apiPutQuery(path, queryParams) {
   return apiRequest(`${path}${buildQuery(queryParams)}`, { method: 'PUT' })
 }
@@ -139,6 +143,18 @@ export const deleteOrdenExamen = (id) => apiDelete(`/api/OrdenExamen/${id}`)
 export const ordenExamenPendientes = () => apiGet('/api/OrdenExamen/Pendientes')
 export const ordenExamenPorMedico = (code) =>
   apiGet(`/api/OrdenExamen/Mostrar-Datos-A-Doctores/${encodeURIComponent(code)}`)
+
+// --- Dashboard / consultas útiles ---
+// NOTA: el endpoint pendientes-por-area fue removido/cambió (ahora devuelve 405).
+export const pendientesTodasLasOrdenes = () =>
+  apiGet('/api/OrdenExamen/pendientes-todas-las-ordenes')
+export const tiempoPorArea = () => apiGet('/api/OrdenExamen/tiempo-por-area')
+export const ordenesConMuestra = () => apiGet('/api/OrdenExamen/ordenes-con-muestra')
+export const examenesSinMuestra = () => apiGet('/api/OrdenExamen/examenes-sin-muestra')
+export const muestrasPorEstado = () => apiGet('/api/OrdenLaboratorio/muestras-por-estado')
+export const examenesMasSolicitados = () => apiGet('/api/Examen/examenes-mas-solicitados')
+export const marcarOrdenLaboratorioComoListo = (code) =>
+  apiPutNoBody(`/api/OrdenLaboratorio/MarcarComolisto/${encodeURIComponent(code)}`)
 
 // --- Resultadoes ---
 export const listResultados = () => apiGet('/api/Resultadoes')
